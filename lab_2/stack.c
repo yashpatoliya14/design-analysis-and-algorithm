@@ -1,110 +1,127 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+
 int size = 0;
-struct Node
-{
-	int data;
-	struct Node *next;
+
+struct Node {
+    int data;
+    struct Node *next;
 } *head = NULL;
 
-void push(int n)
-{
-	struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
-	newNode->next = NULL;
-	newNode->data = n;
-	if (head == NULL)
-	{
-		head = newNode;
-		return;
-	}
-	newNode->next = head;
-	head = newNode;
-	size++;
+// Push operation (insert at the beginning)
+void push(int n) {
+    struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
+    newNode->data = n;
+    newNode->next = head;
+    head = newNode;
+    size++;
 }
 
-int pop()
-{
-	if (head == NULL)
-	{
-		return -1;
-	}
-	int val = head->data;
-	head = head->next;
-	size--;
-	return val;
+// Pop operation (remove from the beginning)
+int pop() {
+    if (head == NULL) {
+        printf("Stack is empty.\n");
+        return -1;
+    }
+    struct Node *temp = head;
+    int val = temp->data;
+    head = head->next;
+    free(temp);
+    size--;
+    return val;
 }
 
-void display()
-{
-	struct Node *node = head;
-	while (node != NULL)
-	{
-		printf("%d ", node->data);
-		node = node->next;
-	}
+// Display the stack
+void display() {
+    if (head == NULL) {
+        printf("Stack is empty.\n");
+        return;
+    }
+    struct Node *node = head;
+    printf("Stack: ");
+    while (node != NULL) {
+        printf("%d ", node->data);
+        node = node->next;
+    }
+    printf("\n");
 }
 
-int peep(int ind)
-{
-	struct Node *node = head;
-	if (ind > size)
-	{
-		printf("Out of range");
-		return 0;
-	}
-	while (ind >= 0)
-	{
-		node = node->next;
-		ind--;
-	}
-	int val = node->data;
-	return val;
+// Peep (peek) at a given index (0-based index from top of stack)
+int peep(int ind) {
+    if (ind >= size || ind < 0) {
+        printf("Out of range\n");
+        return -1;
+    }
+    struct Node *node = head;
+    for (int i = 0; i < ind; i++) {
+        node = node->next;
+    }
+    return node->data;
 }
 
-int main()
-{
-	bool isContinue = true;
-	while (isContinue)
-	{
-		printf("\n\n[1] Push\n [2] Pop\n [3] Peep\n [4] Display\n [5] Exit");
-		printf("\n\nEnter your choice : ");
-		int choice;
-		scanf("%d", &choice);
-		switch (choice)
-		{
-		case 1:
-			scanf("Enter element to push : ");
-			int n;
-			scanf("%d", &n);
-			push(n);
-			break;
+// Free all remaining nodes (clean up)
+void clearStack() {
+    while (head != NULL) {
+        struct Node *temp = head;
+        head = head->next;
+        free(temp);
+    }
+    size = 0;
+}
 
-		case 2:
-			int val = pop();
-			printf("\nPoped elemet = %d\n", val);
-			break;
+int main() {
+    bool isContinue = true;
 
-		case 3:
-			scanf("Enter ind to get : ");
-			int n;
-			scanf("%d", &n);
-			int val = peep(n);
-			break;
+    while (isContinue) {
+        printf("\n\n[1] Push\n[2] Pop\n[3] Peep\n[4] Display\n[5] Exit");
+        printf("\nEnter your choice: ");
+        int choice;
+        scanf("%d", &choice);
 
-		case 4:
-			display();
-			printf("\n\n");
-			break;
+        switch (choice) {
+        case 1: {
+            int n;
+            printf("Enter element to push: ");
+            scanf("%d", &n);
+            push(n);
+            break;
+        }
 
-		case 5:
-			isContinue = false;
-			break;
+        case 2: {
+            int val = pop();
+            if (val != -1) {
+                printf("Popped element = %d\n", val);
+            }
+            break;
+        }
 
-		default:
-			printf("\nInvalid choice\n");
-			break;
-		}
-	}
-	return 0;
+        case 3: {
+            int n;
+            printf("Enter index to peep (0-based): ");
+            scanf("%d", &n);
+            int val = peep(n);
+            if (val != -1) {
+                printf("Element at index %d = %d\n", n, val);
+            }
+            break;
+        }
+
+        case 4:
+            display();
+            break;
+
+        case 5:
+            clearStack(); // free memory
+            isContinue = false;
+            printf("Exiting...\n");
+            break;
+
+        default:
+            printf("Invalid choice.\n");
+            break;
+        }
+    }
+
+    return 0;
 }
